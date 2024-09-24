@@ -31,7 +31,7 @@ const llmInvoke = async (messages: [], prompt: string) => {
         method: 'POST',
         headers,
         body: JSON.stringify({
-            model: 'gpt-4o',
+            model: 'gpt-3.5-turbo',
             messages: [
                 {
                     role: 'system',
@@ -115,8 +115,6 @@ export class MyWebviewViewProvider implements vscode.WebviewViewProvider {
             async (message) => {
                 switch (message.command) {
                     case 'chat-newMessage-human':
-                        vscode.window.showInformationMessage('sending code...');
-                        console.log('called with', message);
                         const llmResponse = await llmInvoke(
                             message.messages,
                             message.prompt

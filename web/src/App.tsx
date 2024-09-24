@@ -7,7 +7,6 @@ import {
   VSCodeProgressRing,
 } from "@vscode/webview-ui-toolkit/react";
 import './App.css'
-
 import React, { useEffect } from 'react'
 import Markdown from 'react-markdown'
 
@@ -18,7 +17,8 @@ function App() {
   const [isLoading, setIsLoading] = React.useState(false)
   const [newMessage, setNewMessage] = React.useState('')
 
-  const handleSendClick = () => {
+  const handleSendClick = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
     setIsLoading(true)
     const prevMessages = [...messages]
     setMessages(messages => [...messages, {
@@ -55,7 +55,6 @@ function App() {
     }
   }, [])
 
-
   return (
     <div>
       <div className="main">
@@ -80,7 +79,7 @@ function App() {
           )}
         </VSCodeDataGrid>
       </div>
-      <span className="messageInputWrapper">
+      <form className="messageInputWrapper" onSubmit={handleSendClick}>
         <VSCodeTextField
           className='messageInput'
           value={newMessage}
@@ -89,13 +88,9 @@ function App() {
         />
         <VSCodeButton
           className="sendButton"
-          onClick={(e) => {
-            e.preventDefault()
-            handleSendClick()
-          }}
           type="submit"
         >Send</VSCodeButton>
-      </span>
+      </form>
     </div>
   );
 }
