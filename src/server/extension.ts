@@ -83,7 +83,8 @@ export class MyWebviewViewProvider implements vscode.WebviewViewProvider {
         let scriptSrc = webviewView.webview.asWebviewUri(
             vscode.Uri.joinPath(
                 this.context.extensionUri,
-                'web',
+                'src',
+                'client',
                 'dist',
                 'index.js'
             )
@@ -92,7 +93,8 @@ export class MyWebviewViewProvider implements vscode.WebviewViewProvider {
         let cssSrc = webviewView.webview.asWebviewUri(
             vscode.Uri.joinPath(
                 this.context.extensionUri,
-                'web',
+                'src',
+                'client',
                 'dist',
                 'index.css'
             )
