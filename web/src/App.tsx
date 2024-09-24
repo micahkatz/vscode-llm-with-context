@@ -7,27 +7,30 @@ import {
   VSCodeProgressRing,
 } from "@vscode/webview-ui-toolkit/react";
 import './App.css'
-import "vscode-webview"
+
 import React, { useEffect } from 'react'
 import Markdown from 'react-markdown'
 
+const vscode = acquireVsCodeApi();
+
 function App() {
   const [messages, setMessages] = React.useState<{ role: 'user' | 'assistant', content: string }[]>([])
-
+  const [isLoading, setIsLoading] = React.useState(false)
   const [newMessage, setNewMessage] = React.useState('')
 
   const handleSendClick = () => {
-    const vscode = acquireVsCodeApi();
-    vscode.postMessage({
-      command: 'chat-newMessage-human',
-      messages,
-      prompt: newMessage
-    })
+    setIsLoading(true)
+    const prevMessages = [...messages]
     setMessages(messages => [...messages, {
       role: 'user',
       content: newMessage
     }])
     setNewMessage('')
+    vscode.postMessage({
+      command: 'chat-newMessage-human',
+      messages: prevMessages,
+      prompt: newMessage
+    })
   }
 
   const handleExtensionMessageReceived = (event: MessageEvent) => {
@@ -35,6 +38,7 @@ function App() {
 
     switch (message?.command) {
       case 'chat-newMesssage':
+        setIsLoading(false)
         setMessages(messages => [...messages, {
           role: 'assistant',
           content: message?.text
@@ -46,6 +50,7 @@ function App() {
   useEffect(() => {
     window.addEventListener('message', handleExtensionMessageReceived);
     return () => {
+      console.log('removeEventListener')
       window.removeEventListener('message', handleExtensionMessageReceived)
     }
   }, [])
@@ -63,6 +68,16 @@ function App() {
               </VSCodeDataGridCell>
             </VSCodeDataGridRow>
           ))}
+          {isLoading && (
+            <VSCodeDataGridRow>
+              <VSCodeDataGridCell grid-column="1">
+                <h2>ChatGPT</h2>
+                <div className="loading-cell">
+                  <VSCodeProgressRing />
+                </div>
+              </VSCodeDataGridCell>
+            </VSCodeDataGridRow>
+          )}
         </VSCodeDataGrid>
       </div>
       <span className="messageInputWrapper">
