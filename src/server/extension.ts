@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
-
+import * as fs from 'fs';
 import { OPENAI_API_KEY } from './secret';
+import typescriptDocs from './lang-docs/typescript';
+import javascriptDocs from './lang-docs/javascript';
 
 export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
@@ -23,11 +25,43 @@ const getCurrentEditorCode = () => {
     return 'There is no editor open';
 };
 
+// a function to get the language docs for a specific language
+const getCurrentEditorLanguageDocs = () => {
+    const editor = vscode.window.activeTextEditor;
+
+    if (editor) {
+        const { fileName } = editor.document;
+        if (fileName.endsWith('.ts') || fileName.endsWith('.tsx')) {
+            return `Here is some documentation for TypeScript:
+        
+                ${typescriptDocs}`;
+        }
+        if (fileName.endsWith('.js') || fileName.endsWith('.jsx')) {
+            return `Here is some documentation for JavaScript:
+        
+                ${javascriptDocs}`;
+        }
+    }
+
+    return null;
+};
+
 // an async function to invoke GPT-3.5 Turbo via an API call
 const llmInvoke = async (messages: [], prompt: string) => {
     const headers = new Headers();
     headers.append('Content-Type', 'application/json');
     headers.append('Authorization', `Bearer ${OPENAI_API_KEY}`);
+    const currentEditorLanguageDocs = getCurrentEditorLanguageDocs();
+    const langDocsSystemMessage = currentEditorLanguageDocs
+        ? [
+              {
+                  role: 'system',
+                  content: currentEditorLanguageDocs,
+              },
+          ]
+        : [];
+    const currentEditorCode = getCurrentEditorCode();
+    const MAX_CODE_LEN = 5000;
 
     const requestOptions = {
         method: 'POST',
@@ -40,11 +74,19 @@ const llmInvoke = async (messages: [], prompt: string) => {
                     content: 'You are a helpful assistant.',
                 },
                 ...messages,
+                ...langDocsSystemMessage,
                 {
                     role: 'system',
                     content: `Here is the context of the current file
                     
-                    ${getCurrentEditorCode()}`,
+                    ${
+                        currentEditorCode.length > MAX_CODE_LEN
+                            ? `${currentEditorCode.slice(
+                                  0,
+                                  MAX_CODE_LEN
+                              )}\n\nOUTPUT HAS BEEN TRUNCATED BECAUSE OF LARGE FILE SIZE`
+                            : currentEditorCode
+                    }`,
                 },
                 {
                     role: 'user',
