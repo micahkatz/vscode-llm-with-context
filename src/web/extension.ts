@@ -1,99 +1,144 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
-    // Use the console to output diagnostic information (console.log) and errors (console.error)
-    // This line of code will only be executed once when your extension is activated
-    console.log(
-        'Congratulations, your extension "code-completion" is now active in the web extension host!'
+import { OPENAI_API_KEY } from './secret';
+
+export async function activate(context: vscode.ExtensionContext) {
+    context.subscriptions.push(
+        vscode.window.registerWebviewViewProvider(
+            'code-completion.webview',
+            new MyWebviewViewProvider(context)
+        )
     );
-
-    // // The command has been defined in the package.json file
-    // // Now provide the implementation of the command with registerCommand
-    // // The commandId parameter must match the command field in package.json
-    // const disposable = vscode.commands.registerCommand('code-completion.helloWorld', () => {
-    // 	// The code you place here will be executed every time your command is executed
-
-    // 	// Display a message box to the user
-    // 	// vscode.window.showInformationMessage('Hello World from code-completion in a web extension host!');
-    // 	vscode.window.showInformationMessage('Testing 123 from extension!');
-    // });
-
-    // context.subscriptions.push(disposable);
-
-    let webview = vscode.commands.registerCommand(
-        'code-completion.helloWorld',
-        () => {
-            let panel = vscode.window.createWebviewPanel(
-                'webview',
-                'Web View',
-                {
-                    viewColumn: vscode.ViewColumn.One,
-                },
-                {
-                    enableScripts: true,
-                }
-            );
-
-            const scriptPath = panel.webview.asWebviewUri(
-                vscode.Uri.joinPath(context.extensionUri, 'media', 'script.js')
-            );
-
-            panel.webview.html = `<!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <script src="${scriptPath}"></script>
-        </head>
-        <body>
-        <h1>Count:</h1>
-            <p id="count">0</p>
-        <button onclick="changeHeading()">Add</button>
-        </body>
-        </html>`;
-
-            const cssStyle = panel.webview.asWebviewUri(
-                vscode.Uri.joinPath(
-                    context.extensionUri,
-                    'media',
-                    'globals.css'
-                )
-            );
-
-            const imgSrc = panel.webview.asWebviewUri(
-                vscode.Uri.joinPath(context.extensionUri, 'media', 'vim.svg')
-            );
-
-            // // will set the html here
-            // panel.webview.html = `<!DOCTYPE html>
-            //     <html lang="en">
-            //     <head>
-            //         <meta charset="UTF-8">
-            //         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            //         <link rel="stylesheet" type="text/css" href="${cssStyle}" />
-            //     </head>
-            //     <body>
-            //     <div class="container">
-            //         <img src="${imgSrc}" width="200" />
-            //         <div class="form">
-            //             <code>Title</code>
-            //             <input />
-            //             <code>Code</code>
-            //             <textarea></textarea>
-            //             <button>Submit</button>
-            //         </div>
-            //     </div>
-            //     </body>
-            //     </html>`;
-        }
-    );
-
-    context.subscriptions.push(webview);
 }
 
-// This method is called when your extension is deactivated
+const getCurrentEditorCode = () => {
+    const editor = vscode.window.activeTextEditor;
+
+    if (editor) {
+        let document = editor.document;
+
+        return document.getText();
+    }
+    return 'There is no editor open';
+};
+
+const llmInvoke = async (messages: [], prompt: string) => {
+    const headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+    headers.append('Authorization', `Bearer ${OPENAI_API_KEY}`);
+
+    const requestOptions = {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+            model: 'gpt-4o',
+            messages: [
+                {
+                    role: 'system',
+                    content: 'You are a helpful assistant.',
+                },
+                ...messages,
+                {
+                    role: 'system',
+                    content: `Here is the context of the current file
+                    
+                    ${getCurrentEditorCode()}`,
+                },
+                {
+                    role: 'user',
+                    content: prompt,
+                },
+            ],
+        }),
+    };
+    try {
+        const response = await fetch(
+            'https://api.openai.com/v1/chat/completions',
+            requestOptions
+        );
+        const resJson = await response.json();
+        console.log('LLM RESPONSE', resJson);
+        if (resJson?.error) {
+            throw resJson.error;
+        }
+        // @ts-ignore
+        return resJson?.choices[0]?.message?.content;
+    } catch (err) {
+        console.error(err);
+        return 'There was a server error';
+    }
+};
+
+export class MyWebviewViewProvider implements vscode.WebviewViewProvider {
+    constructor(private context: vscode.ExtensionContext) {}
+
+    resolveWebviewView(
+        webviewView: vscode.WebviewView,
+        _: vscode.WebviewViewResolveContext,
+        _token: vscode.CancellationToken
+    ) {
+        webviewView.webview.options = {
+            enableScripts: true,
+        };
+        let scriptSrc = webviewView.webview.asWebviewUri(
+            vscode.Uri.joinPath(
+                this.context.extensionUri,
+                'web',
+                'dist',
+                'index.js'
+            )
+        );
+
+        let cssSrc = webviewView.webview.asWebviewUri(
+            vscode.Uri.joinPath(
+                this.context.extensionUri,
+                'web',
+                'dist',
+                'index.css'
+            )
+        );
+
+        webviewView.webview.html = `
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <link rel="stylesheet" href="${cssSrc}" />
+            </head>
+            <body>
+                <noscript>You need to enable JavaScript to run this app.</noscript>
+                <div id="root"></div>
+                <script src="${scriptSrc}"></script>
+            </body>
+            </html>
+        `;
+        webviewView.webview.onDidReceiveMessage(
+            async (message) => {
+                switch (message.command) {
+                    case 'chat-newMessage-human':
+                        vscode.window.showInformationMessage('sending code...');
+                        console.log('called with', message);
+                        const llmResponse = await llmInvoke(
+                            message.messages,
+                            message.prompt
+                        );
+                        webviewView.webview.postMessage({
+                            command: 'chat-newMesssage',
+                            text: llmResponse,
+                        });
+                        return;
+                }
+            },
+            undefined,
+            this.context.subscriptions
+        );
+        webviewView.webview.onDidReceiveMessage(async (message) => {
+            switch (message.command) {
+                case 'showMessage':
+                    vscode.window.showInformationMessage(message.text);
+                    break;
+            }
+        });
+    }
+}
+
 export function deactivate() {}

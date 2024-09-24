@@ -3,3 +3,7 @@ dist
 node_modules
 .vscode-test-web/
 *.vsix
+.env
+secret.ts
+.parcel-cache
+.vscode/

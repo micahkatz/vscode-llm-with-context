@@ -9,15 +9,27 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
   "browser": "./dist/web/extension.js",
   "contributes": {
-    "commands": [
-      {
-        "command": "code-completion.helloWorld",
-        "title": "Hello World"
-      }
-    ]
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "codeCompletions",
+          "title": "Code Completions",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "codeCompletions": [
+        {
+          "type": "webview",
+          "id": "code-completion.webview",
+          "name": "Code Completion",
+          "icon": "media/icon.svg"
+        }
+      ]
+    }
   },
   "scripts": {
     "test": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. --extensionTestsPath=dist/web/test/suite/index.js",
@@ -30,20 +42,23 @@
     "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. ."
   },
   "devDependencies": {
-    "@types/vscode": "^1.93.0",
-    "@types/mocha": "^10.0.7",
     "@types/assert": "^1.5.10",
-    "eslint": "^9.9.1",
+    "@types/mocha": "^10.0.7",
+    "@types/vscode": "^1.93.0",
+    "@types/webpack-env": "^1.18.5",
     "@typescript-eslint/eslint-plugin": "^8.3.0",
     "@typescript-eslint/parser": "^8.3.0",
-    "mocha": "^10.7.3",
-    "typescript": "^5.5.4",
     "@vscode/test-web": "^0.0.58",
-    "ts-loader": "^9.5.1",
-    "webpack": "^5.94.0",
-    "webpack-cli": "^5.1.4",
-    "@types/webpack-env": "^1.18.5",
     "assert": "^2.1.0",
-    "process": "^0.11.10"
+    "eslint": "^9.9.1",
+    "mocha": "^10.7.3",
+    "process": "^0.11.10",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.5.4",
+    "webpack": "^5.94.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5"
   }
 }
