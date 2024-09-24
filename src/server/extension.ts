@@ -6,11 +6,11 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.window.registerWebviewViewProvider(
             'code-completion.webview',
-            new MyWebviewViewProvider(context)
+            new ReactAppWebView(context)
         )
     );
 }
-
+// a function to get the code for the current active file
 const getCurrentEditorCode = () => {
     const editor = vscode.window.activeTextEditor;
 
@@ -19,9 +19,11 @@ const getCurrentEditorCode = () => {
 
         return document.getText();
     }
+    // the LLM will get this error message if no editor is open
     return 'There is no editor open';
 };
 
+// an async function to invoke GPT-3.5 Turbo via an API call
 const llmInvoke = async (messages: [], prompt: string) => {
     const headers = new Headers();
     headers.append('Content-Type', 'application/json');
@@ -57,7 +59,6 @@ const llmInvoke = async (messages: [], prompt: string) => {
             requestOptions
         );
         const resJson = await response.json();
-        console.log('LLM RESPONSE', resJson);
         if (resJson?.error) {
             throw resJson.error;
         }
@@ -69,7 +70,7 @@ const llmInvoke = async (messages: [], prompt: string) => {
     }
 };
 
-export class MyWebviewViewProvider implements vscode.WebviewViewProvider {
+export class ReactAppWebView implements vscode.WebviewViewProvider {
     constructor(private context: vscode.ExtensionContext) {}
 
     resolveWebviewView(
@@ -80,6 +81,7 @@ export class MyWebviewViewProvider implements vscode.WebviewViewProvider {
         webviewView.webview.options = {
             enableScripts: true,
         };
+        // get the script for the React app from the build output
         let scriptSrc = webviewView.webview.asWebviewUri(
             vscode.Uri.joinPath(
                 this.context.extensionUri,
@@ -89,7 +91,7 @@ export class MyWebviewViewProvider implements vscode.WebviewViewProvider {
                 'index.js'
             )
         );
-
+        // get the CSS for the React app from the build output
         let cssSrc = webviewView.webview.asWebviewUri(
             vscode.Uri.joinPath(
                 this.context.extensionUri,
@@ -100,6 +102,7 @@ export class MyWebviewViewProvider implements vscode.WebviewViewProvider {
             )
         );
 
+        // create a webview that has the react app's script and styles
         webviewView.webview.html = `
             <!DOCTYPE html>
             <html lang="en">
@@ -113,14 +116,18 @@ export class MyWebviewViewProvider implements vscode.WebviewViewProvider {
             </body>
             </html>
         `;
+
+        // handle communication from the React App
         webviewView.webview.onDidReceiveMessage(
             async (message) => {
                 switch (message.command) {
+                    // a new chat message has been sent from the React app
                     case 'chat-newMessage-human':
                         const llmResponse = await llmInvoke(
                             message.messages,
                             message.prompt
                         );
+                        // send back response to the React App
                         webviewView.webview.postMessage({
                             command: 'chat-newMesssage',
                             text: llmResponse,
@@ -131,13 +138,6 @@ export class MyWebviewViewProvider implements vscode.WebviewViewProvider {
             undefined,
             this.context.subscriptions
         );
-        webviewView.webview.onDidReceiveMessage(async (message) => {
-            switch (message.command) {
-                case 'showMessage':
-                    vscode.window.showInformationMessage(message.text);
-                    break;
-            }
-        });
     }
 }
 
