@@ -58,12 +58,33 @@ const llmInvoke = async (messages: [], prompt: string) => {
             'https://api.openai.com/v1/chat/completions',
             requestOptions
         );
+        type OpenAiResponse = {
+            id: string;
+            object: string;
+            created: number;
+            model: string;
+            choices: {
+                index: number;
+                message: {
+                    role: string;
+                    content: string;
+                };
+                logprobs: null;
+                finish_reason: string;
+            }[];
+            usage: {
+                prompt_tokens: number;
+                completion_tokens: number;
+                total_tokens: number;
+            };
+            system_fingerprint: null;
+        };
         const resJson = await response.json();
         if (resJson?.error) {
             throw resJson.error;
         }
-        // @ts-ignore
-        return resJson?.choices[0]?.message?.content;
+        const res = resJson as OpenAiResponse;
+        return res?.choices[0]?.message?.content;
     } catch (err) {
         console.error(err);
         return 'There was a server error';

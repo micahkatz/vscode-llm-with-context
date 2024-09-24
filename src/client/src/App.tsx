@@ -11,21 +11,27 @@ import React, { useEffect } from 'react'
 import Markdown from 'react-markdown'
 
 const vscode = acquireVsCodeApi();
-
+type MessageType = { role: 'user' | 'assistant', content: string }
 function App() {
-  const [messages, setMessages] = React.useState<{ role: 'user' | 'assistant', content: string }[]>([])
+  const [messages, setMessages] = React.useState<MessageType[]>([])
   const [isLoading, setIsLoading] = React.useState(false)
   const [newMessage, setNewMessage] = React.useState('')
 
   const handleSendClick = (e: React.FormEvent<HTMLFormElement>) => {
+    // prevent VS Code from reloading the window and redirecting
     e.preventDefault()
+
+    // render loading indicator
     setIsLoading(true)
+
     const prevMessages = [...messages]
     setMessages(messages => [...messages, {
       role: 'user',
       content: newMessage
     }])
     setNewMessage('')
+
+    // send message to server
     vscode.postMessage({
       command: 'chat-newMessage-human',
       messages: prevMessages,
@@ -33,16 +39,21 @@ function App() {
     })
   }
 
+  // listen to messages from server  
   const handleExtensionMessageReceived = (event: MessageEvent) => {
-    const message = event?.data; // The JSON data our extension sent
+    const message = event?.data;
 
     switch (message?.command) {
+      // a new message was sent from the server and should be appended to the chat history
       case 'chat-newMesssage':
-        setIsLoading(false)
-        setMessages(messages => [...messages, {
-          role: 'assistant',
-          content: message?.text
-        }])
+        setIsLoading(false) // stop the loading indicator
+        setMessages(messages => [
+          ...messages,
+          {
+            role: 'assistant',
+            content: message?.text
+          }
+        ])
         break;
     }
   }
@@ -50,7 +61,6 @@ function App() {
   useEffect(() => {
     window.addEventListener('message', handleExtensionMessageReceived);
     return () => {
-      console.log('removeEventListener')
       window.removeEventListener('message', handleExtensionMessageReceived)
     }
   }, [])
@@ -62,7 +72,7 @@ function App() {
           {messages.map((msg) => (
             <VSCodeDataGridRow>
               <VSCodeDataGridCell grid-column="1">
-                <h2>{msg.role === 'assistant' ? 'ChatGPT' : 'You'}</h2>
+                <h2>{msg.role === 'assistant' ? 'GPT 3.5 Turbo' : 'You'}</h2>
                 <Markdown>{msg.content}</Markdown>
               </VSCodeDataGridCell>
             </VSCodeDataGridRow>
@@ -70,7 +80,7 @@ function App() {
           {isLoading && (
             <VSCodeDataGridRow>
               <VSCodeDataGridCell grid-column="1">
-                <h2>ChatGPT</h2>
+                <h2>GPT 3.5 Turbo</h2>
                 <div className="loading-cell">
                   <VSCodeProgressRing />
                 </div>
@@ -83,8 +93,10 @@ function App() {
         <VSCodeTextField
           className='messageInput'
           value={newMessage}
-          // @ts-ignore
-          onInput={e => setNewMessage(e.target?.value)}
+          onInput={e => {
+            const { value } = e.target as HTMLInputElement
+            setNewMessage(value)
+          }}
         />
         <VSCodeButton
           className="sendButton"
