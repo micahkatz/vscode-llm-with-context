@@ -4,11 +4,21 @@ This is a VS-Code extension that provides a LLM chat interface with editor conte
 
 ## Features
 
-### Chat View
-
 ### Knowledge of the Current File
 
-### Knowledge of the Current File's Language (Python, JS, or TypeScript)
+![Chat View - Knowledge of the Current File](media/vscode-extension-file-context.gif)
+
+### Uses Markdown to Render Complex LLM Responses
+
+![Chat View - Uses Markdown to Render Complex LLM Responses](media/vscode-extension-css-file.gif)
+
+### Responds to VSCode Global Theme Changes
+
+![Chat View - Responds to VSCode Global Theme Changes](media/vscode-extension-change-themes.gif)
+
+### Maintains Context Across Different Languages
+
+![Chat View - Maintains Context Across Different Languages](media/vscode-extension-change-files.gif)
 
 ## Running Locally
 

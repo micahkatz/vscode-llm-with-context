@@ -20,10 +20,12 @@ const getCurrentEditorCode = () => {
     if (editor) {
         let document = editor.document;
 
-        return document.getText();
+        return `Here is the context of the current file (${document.fileName})
+
+        ${document.getText()}`;
     }
     // the LLM will get this error message if no editor is open
-    return 'There is no editor open';
+    return 'Here is the context of the current file: There is no file editor open';
 };
 
 // a function to get the language docs for a specific language
@@ -79,16 +81,13 @@ const llmInvoke = async (messages: [], prompt: string) => {
                 ...langDocsSystemMessage,
                 {
                     role: 'system',
-                    content: `Here is the context of the current file
-                    
-                    ${
+                    content:
                         currentEditorCode.length > MAX_CODE_LEN
                             ? `${currentEditorCode.slice(
                                   0,
                                   MAX_CODE_LEN
                               )}\n\nOUTPUT HAS BEEN TRUNCATED BECAUSE OF LARGE FILE SIZE`
-                            : currentEditorCode
-                    }`,
+                            : currentEditorCode,
                 },
                 {
                     role: 'user',
