@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import { OPENAI_API_KEY } from './secret';
 import typescriptDocs from './lang-docs/typescript';
 import javascriptDocs from './lang-docs/javascript';
+import pythonDocs from './lang-docs/python';
 
 export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
@@ -32,14 +33,13 @@ const getCurrentEditorLanguageDocs = () => {
     if (editor) {
         const { fileName } = editor.document;
         if (fileName.endsWith('.ts') || fileName.endsWith('.tsx')) {
-            return `Here is some documentation for TypeScript:
-        
-                ${typescriptDocs}`;
+            return typescriptDocs;
         }
         if (fileName.endsWith('.js') || fileName.endsWith('.jsx')) {
-            return `Here is some documentation for JavaScript:
-        
-                ${javascriptDocs}`;
+            return javascriptDocs;
+        }
+        if (fileName.endsWith('.py')) {
+            return pythonDocs;
         }
     }
 
@@ -52,6 +52,8 @@ const llmInvoke = async (messages: [], prompt: string) => {
     headers.append('Content-Type', 'application/json');
     headers.append('Authorization', `Bearer ${OPENAI_API_KEY}`);
     const currentEditorLanguageDocs = getCurrentEditorLanguageDocs();
+
+    // get the language for the current file and insert docs for the language if applicable
     const langDocsSystemMessage = currentEditorLanguageDocs
         ? [
               {
