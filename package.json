@@ -40,12 +40,7 @@
     "compile": "tsc -p ./",
     "postinstall": "node ./node_modules/vscode/bin/install",
     "watch": "tsc -w -p ./",
-    "old-compile-web": "webpack",
-    "old-watch-web": "webpack --watch",
-    "old-package-web": "webpack --mode production --devtool hidden-source-map",
-    "old-package": "vsce package",
-    "old-lint": "eslint src",
-    "old-run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. ."
+    "package": "vsce package"
   },
   "devDependencies": {
     "@types/assert": "^1.5.10",
