@@ -6,7 +6,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Run npm build (src/client)",
+            "name": "Build Client",
             "type": "node",
             "request": "launch",
             "runtimeExecutable": "npm",
@@ -15,7 +15,7 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "Run Web Extension ",
+            "name": "Build and Run Web Extension ",
             "type": "extensionHost",
             "debugWebWorkerHost": true,
             "request": "launch",
@@ -27,7 +27,7 @@
             "preLaunchTask": "build-client"
         },
         {
-            "name": "Run Basic Extension",
+            "name": "Run Extension",
             "type": "extensionHost",
             "request": "launch",
             "runtimeExecutable": "${execPath}",

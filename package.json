@@ -3,9 +3,14 @@
   "repository": {
     "url": "https://github.com/micahkatz/vscode-llm-with-context"
   },
-  "displayName": "vscode-chat-with-context",
+  "author": {
+    "name": "Micah Katz",
+    "url": "https://micahkatz.com"
+  },
+  "publisher": "micahkatz",
+  "displayName": "LLM Chat with Context",
   "description": "A VS-Code extension that provides a LLM chat interface with editor context.",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "engines": {
     "vscode": "^1.1.37"
   },
@@ -13,6 +18,7 @@
     "Other"
   ],
   "main": "./dist/src/server/extension.js",
+  "icon": "media/icon.png",
   "activationEvents": [],
   "contributes": {
     "viewsContainers": {
