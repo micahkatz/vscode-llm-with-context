@@ -20,7 +20,7 @@
         {
           "id": "codeCompletions",
           "title": "LLM with Context",
-          "icon": "media/icon.svg"
+          "icon": "media/icon.png"
         }
       ]
     },
@@ -30,7 +30,7 @@
           "type": "webview",
           "id": "code-completion.webview",
           "name": "Chat",
-          "icon": "media/icon.svg"
+          "icon": "media/icon.png"
         }
       ]
     },
