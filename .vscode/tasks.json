@@ -23,12 +23,25 @@
         {
             "label": "build-client",
             "type": "npm",
-            "script": "build",
+            "script": "build:local",
             "group": {
                 "kind": "build"
             },
             "options": {
                 "cwd": "${workspaceFolder}/src/client"
+            }
+        },
+        {
+            "type": "npm",
+            "script": "watch",
+            "problemMatcher": "$tsc-watch",
+            "isBackground": true,
+            "presentation": {
+                "reveal": "never"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
             }
         }
     ]

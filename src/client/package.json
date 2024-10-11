@@ -20,7 +20,8 @@
   "source": "src/index.tsx",
   "scripts": {
     "start": "react-scripts start",
-    "build": "parcel build",
+    "build": "parcel build --dist-dir ../../dist/src/client",
+    "build:local": "parcel build",
     "eject": "react-scripts eject"
   },
   "browserslist": {

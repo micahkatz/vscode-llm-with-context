@@ -12,6 +12,37 @@ export async function activate(context: vscode.ExtensionContext) {
             new ReactAppWebView(context)
         )
     );
+    // context.subscriptions.push(
+    //     vscode.languages.registerCompletionItemProvider(
+    //         { language: 'typescript', scheme: 'file' },
+    //         // 'tsx',
+    //         {
+    //             provideCompletionItems(document, position, token, context) {
+    //                 // get all text until the `position` and check if it reads `"launches.`
+    //                 // const linePrefix = document
+    //                 //     .lineAt(position)
+    //                 //     .text.substring(0, position.character);
+    //                 // if (!linePrefix.endsWith('"launches.')) {
+    //                 //     return undefined;
+    //                 // }
+    //                 let myitem = (text: any) => {
+    //                     let item = new vscode.CompletionItem(
+    //                         text,
+    //                         vscode.CompletionItemKind.Text
+    //                     );
+    //                     item.range = new vscode.Range(position, position);
+    //                     return item;
+    //                 };
+    //                 return [
+    //                     myitem('howdy1'),
+    //                     myitem('howdy2'),
+    //                     myitem('howdy3'),
+    //                 ];
+    //             },
+    //         },
+    //         '.' // trigger
+    //     )
+    // );
 }
 // a function to get the code for the current active file
 const getCurrentEditorCode = () => {
@@ -149,9 +180,9 @@ export class ReactAppWebView implements vscode.WebviewViewProvider {
         let scriptSrc = webviewView.webview.asWebviewUri(
             vscode.Uri.joinPath(
                 this.context.extensionUri,
+                'dist',
                 'src',
                 'client',
-                'dist',
                 'index.js'
             )
         );
@@ -159,9 +190,9 @@ export class ReactAppWebView implements vscode.WebviewViewProvider {
         let cssSrc = webviewView.webview.asWebviewUri(
             vscode.Uri.joinPath(
                 this.context.extensionUri,
+                'dist',
                 'src',
                 'client',
-                'dist',
                 'index.css'
             )
         );

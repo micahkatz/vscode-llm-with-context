@@ -10,7 +10,7 @@
             "type": "node",
             "request": "launch",
             "runtimeExecutable": "npm",
-            "runtimeArgs": ["run", "build"],
+            "runtimeArgs": ["run", "build:local"],
             "cwd": "${workspaceFolder}/src/client",
             "console": "integratedTerminal"
         },
@@ -23,8 +23,17 @@
                 "--extensionDevelopmentPath=${workspaceFolder}",
                 "--extensionDevelopmentKind=web"
             ],
-            "outFiles": ["${workspaceFolder}/dist/web/**/*.js"],
+            "outFiles": ["${workspaceFolder}/dist/src/server/**/*.js"],
             "preLaunchTask": "build-client"
+        },
+        {
+            "name": "Run Basic Extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": ["--extensionDevelopmentPath=${workspaceRoot}"],
+            "outFiles": ["${workspaceFolder}/dist/src/server/**/*.js"],
+            "preLaunchTask": "npm: watch"
         }
     ]
 }

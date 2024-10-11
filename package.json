@@ -1,15 +1,19 @@
 {
   "name": "vscode-chat-with-context",
+  "repository": {
+    "url": "https://github.com/micahkatz/vscode-llm-with-context"
+  },
   "displayName": "vscode-chat-with-context",
   "description": "A VS-Code extension that provides a LLM chat interface with editor context.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "engines": {
-    "vscode": "^1.93.0"
+    "vscode": "^1.1.37"
   },
   "categories": [
     "Other"
   ],
-  "browser": "./dist/web/extension.js",
+  "main": "./dist/src/server/extension.js",
+  "activationEvents": [],
   "contributes": {
     "viewsContainers": {
       "activitybar": [
@@ -32,17 +36,20 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run package-web",
-    "compile-web": "webpack",
-    "watch-web": "webpack --watch",
-    "package-web": "webpack --mode production --devtool hidden-source-map",
-    "lint": "eslint src",
-    "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. ."
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "watch": "tsc -w -p ./",
+    "old-compile-web": "webpack",
+    "old-watch-web": "webpack --watch",
+    "old-package-web": "webpack --mode production --devtool hidden-source-map",
+    "old-package": "vsce package",
+    "old-lint": "eslint src",
+    "old-run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. ."
   },
   "devDependencies": {
     "@types/assert": "^1.5.10",
     "@types/mocha": "^10.0.7",
-    "@types/vscode": "^1.93.0",
     "@types/webpack-env": "^1.18.5",
     "@typescript-eslint/eslint-plugin": "^8.3.0",
     "@typescript-eslint/parser": "^8.3.0",
@@ -53,6 +60,7 @@
     "process": "^0.11.10",
     "ts-loader": "^9.5.1",
     "typescript": "^5.5.4",
+    "vscode": "^1.1.37",
     "webpack": "^5.94.0",
     "webpack-cli": "^5.1.4"
   },
