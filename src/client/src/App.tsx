@@ -86,7 +86,7 @@ function App() {
             <>
               <VSCodeDataGridRow>
                 <VSCodeDataGridCell grid-column="1">
-                  <h2>{msg.role === 'assistant' ? 'GPT 3.5 Turbo' : 'You'}</h2>
+                  <h2>{msg.role === 'assistant' ? 'Assistant' : 'You'}</h2>
                   <Markdown>{msg.content}</Markdown>
                   <h5>{msg.timestamp.calendar()}</h5>
                 </VSCodeDataGridCell>
@@ -99,7 +99,7 @@ function App() {
               <VSCodeDivider />
               <VSCodeDataGridRow>
                 <VSCodeDataGridCell grid-column="1">
-                  <h2>GPT 3.5 Turbo</h2>
+                  <h2>Assistant</h2>
                   <div className="loading-cell">
                     <VSCodeProgressRing />
                   </div>

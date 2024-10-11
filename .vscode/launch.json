@@ -10,7 +10,7 @@
             "type": "node",
             "request": "launch",
             "runtimeExecutable": "npm",
-            "runtimeArgs": ["run", "build:local"],
+            "runtimeArgs": ["run", "build"],
             "cwd": "${workspaceFolder}/src/client",
             "console": "integratedTerminal"
         },

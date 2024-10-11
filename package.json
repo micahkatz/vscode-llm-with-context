@@ -33,6 +33,29 @@
           "icon": "media/icon.svg"
         }
       ]
+    },
+    "configuration": {
+      "title": "VS Code Chat With Context",
+      "properties": {
+        "vscode-chat-with-context.OPENAI_API_KEY": {
+          "title": "OpenAI API Key",
+          "type": "string",
+          "default": "",
+          "description": "Your OpenAI API Key."
+        },
+        "vscode-chat-with-context.OPENAI_MODEL": {
+          "title": "OpenAI Model",
+          "type": "string",
+          "default": "gpt-3.5-turbo",
+          "description": "A valid OpenAI model tag"
+        },
+        "vscode-chat-with-context.OPENAI_BASE_URL": {
+          "title": "OpenAI Base URL",
+          "type": "string",
+          "default": "https://api.openai.com/v1/chat/completions",
+          "description": "A base url to make requests to. Can be substituted for a local LLM base URL"
+        }
+      }
     }
   },
   "scripts": {

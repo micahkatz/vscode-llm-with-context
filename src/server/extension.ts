@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
-import { OPENAI_API_KEY } from './secret';
 import typescriptDocs from './lang-docs/typescript';
 import javascriptDocs from './lang-docs/javascript';
 import pythonDocs from './lang-docs/python';
@@ -81,8 +80,29 @@ const getCurrentEditorLanguageDocs = () => {
 
 // an async function to invoke GPT-3.5 Turbo via an API call
 const llmInvoke = async (messages: [], prompt: string) => {
+    const OPENAI_API_KEY = vscode.workspace
+        .getConfiguration('vscode-chat-with-context')
+        .get('OPENAI_API_KEY');
+    const OPENAI_MODEL = vscode.workspace
+        .getConfiguration('vscode-chat-with-context')
+        .get('OPENAI_MODEL');
+    const OPENAI_BASE_URL: string | undefined = vscode.workspace
+        .getConfiguration('vscode-chat-with-context')
+        .get('OPENAI_BASE_URL');
+
+    if (!OPENAI_API_KEY) {
+        return 'You must set your OpenAI API Key in your VSCode Settings';
+    }
+    if (!OPENAI_MODEL) {
+        return 'You must set your OpenAI Model in your VSCode Settings';
+    }
+    if (!OPENAI_BASE_URL) {
+        return 'You must set your OpenAI Base URL in your VSCode Settings';
+    }
+
     const headers = new Headers();
     headers.append('Content-Type', 'application/json');
+
     headers.append('Authorization', `Bearer ${OPENAI_API_KEY}`);
     const currentEditorLanguageDocs = getCurrentEditorLanguageDocs();
 
@@ -102,7 +122,7 @@ const llmInvoke = async (messages: [], prompt: string) => {
         method: 'POST',
         headers,
         body: JSON.stringify({
-            model: 'gpt-3.5-turbo',
+            model: OPENAI_MODEL,
             messages: [
                 {
                     role: 'system',
@@ -128,10 +148,7 @@ const llmInvoke = async (messages: [], prompt: string) => {
         }),
     };
     try {
-        const response = await fetch(
-            'https://api.openai.com/v1/chat/completions',
-            requestOptions
-        );
+        const response = await fetch(OPENAI_BASE_URL, requestOptions);
         type OpenAiResponse = {
             id: string;
             object: string;
